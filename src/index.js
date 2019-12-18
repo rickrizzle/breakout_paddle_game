@@ -83,8 +83,6 @@ function draw() {
   //gives impression of proper collision detection.
   if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
     dx = -dx;
-    //Changes ball color each time it hits wall.
-    color = randColor();
   }
 
   if (y + dy < ballRadius) {
