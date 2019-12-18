@@ -10,7 +10,7 @@ let dy = -2;
 let ballRadius = 10;
 
 let paddleHeight = 10;
-let paddleWidth = 75;
+let paddleWidth = 100;
 let paddleX = (canvas.width - paddleWidth) / 2;
 
 //Pressed buttons
@@ -87,19 +87,26 @@ function draw() {
     color = randColor();
   }
 
-  if (y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
+  if (y + dy < ballRadius) {
     dy = -dy;
-    //Changes ball color each time it hits wall.
-    color = randColor();
+  } else if (y + dy > canvas.height - ballRadius) {
+    if (x > paddleX && x < paddleX + paddleWidth) {
+      dy = -dy;
+      color = randColor();
+    } else {
+      alert("GAME OVER!");
+      document.location.reload();
+      clearInterval(interval); // Needed for Chrome to end game.
+    }
   }
-
+  // Change pressed numbers if you want paddle to move faster.
   if (rightPressed) {
-    paddleX += 7;
+    paddleX += 9;
     if (paddleX + paddleWidth > canvas.width) {
       paddleX = canvas.width - paddleWidth;
     }
   } else if (leftPressed) {
-    paddleX -= 7;
+    paddleX -= 9;
     if (paddleX < 0) {
       paddleX = 0;
     }
@@ -109,7 +116,7 @@ function draw() {
   y += dy;
 }
 
-setInterval(draw, 10);
+let interval = setInterval(draw, 10);
 
 /*
 ctx.beginPath();
