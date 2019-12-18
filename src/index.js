@@ -17,6 +17,25 @@ let paddleX = (canvas.width - paddleWidth) / 2;
 let rightPressed = false;
 let leftPressed = false;
 
+// Number of rows & columns of bricks; height & width; padding between bricks
+//and top and left offset so they're not drawn from edge of canvas.
+let brickRowCount = 3;
+let brickColumnCount = 5;
+let brickWidth = 75;
+let brickHeight = 20;
+let brickPadding = 10;
+let brickOffsetTop = 30;
+let brickOffsetLeft = 30;
+
+// Loop for going through rows & columns to create new bricks.
+let bricks = [];
+for (let c = 0; c < brickColumnCount; c++) {
+  bricks[c] = [];
+  for (let r = 0; r < brickRowCount; r++) {
+    bricks[c][r] = { x: 0, y: 0, status: 1 };
+  }
+}
+
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 
@@ -36,16 +55,25 @@ function keyUpHandler(e) {
   }
 }
 
-/*Random color
-const cr =
-  "rgb(" +
-  Math.floor(Math.random() * 256) +
-  "," +
-  Math.floor(Math.random() * 256) +
-  "," +
-  Math.floor(Math.random() * 256) +
-  ")";
-  */
+function collisionDetection() {
+  for (let c = 0; c < brickColumnCount; c++) {
+    for (let r = 0; r < brickRowCount; r++) {
+      let b = bricks[c][r];
+      // calculations
+      if (b.status == 1) {
+        if (
+          x > b.x &&
+          x < b.x + brickWidth &&
+          y > b.y &&
+          y < b.y + brickHeight
+        ) {
+          dy = -dy;
+          b.status = 0;
+        }
+      }
+    }
+  }
+}
 
 let color = randColor();
 
@@ -74,11 +102,32 @@ function drawPaddle() {
   ctx.closePath();
 }
 
+// drawBricks loops through rows & cols. to set x & y position of each brick.
+function drawBricks() {
+  for (let c = 0; c < brickColumnCount; c++) {
+    for (let r = 0; r < brickRowCount; r++) {
+      if (bricks[c][r].status == 1) {
+        let brickX = c * (brickWidth + brickPadding) + brickOffsetLeft;
+        let brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
+        bricks[c][r].x = brickX;
+        bricks[c][r].y = brickY;
+        ctx.beginPath();
+        ctx.rect(brickX, brickY, brickWidth, brickHeight);
+        ctx.fillStyle = "#8b0000";
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+  }
+}
+
 function draw() {
   // drawing code
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBricks();
   drawBall();
   drawPaddle();
+  collisionDetection();
   //Subtracting the radius from one edge's width & adding it onto the other
   //gives impression of proper collision detection.
   if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
