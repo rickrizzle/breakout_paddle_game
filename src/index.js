@@ -29,6 +29,8 @@ let brickOffsetLeft = 30;
 
 let score = 0;
 
+let lives = 3;
+
 // Loop for going through rows & columns to create new bricks.
 let bricks = [];
 for (let c = 0; c < brickColumnCount; c++) {
@@ -40,6 +42,14 @@ for (let c = 0; c < brickColumnCount; c++) {
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
+document.addEventListener("mousemove", mouseMoveHandler, false);
+
+function mouseMoveHandler(e) {
+  let relativeX = e.clientX - canvas.offsetLeft;
+  if (relativeX > 0 && relativeX < canvas.width) {
+    paddleX = relativeX - paddleWidth / 2;
+  }
+}
 
 function keyDownHandler(e) {
   if (e.key === "Right" || e.key === "ArrowRight") {
@@ -70,13 +80,13 @@ function collisionDetection() {
           y < b.y + brickHeight
         ) {
           dy = -dy;
+
           b.status = 0;
           score++; // Increment the score
           if (score == brickRowCount * brickColumnCount) {
             alert("YOU WIN PLAYA, CONGRATULATIONS!" + " Final Score: " + score);
 
             document.location.reload(); // Reloads game & starts game again
-            clearInterval(interval); // Needed for Chrome to end game
           }
         }
       }
@@ -88,6 +98,12 @@ function drawScore() {
   ctx.font = "16px Helvetica";
   ctx.fillStyle = "#a9a9a9";
   ctx.fillText("Score: " + score, 8, 20);
+}
+
+function drawLives() {
+  ctx.font = "16px Helvetica";
+  ctx.fillStyle = "#0095DD";
+  ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
 }
 
 let color = randColor();
@@ -143,6 +159,7 @@ function draw() {
   drawBall();
   drawPaddle();
   drawScore();
+  drawLives();
   collisionDetection();
   //Subtracting the radius from one edge's width & adding it onto the other
   //gives impression of proper collision detection.
@@ -157,9 +174,17 @@ function draw() {
       dy = -dy;
       color = randColor();
     } else {
-      alert("GAME OVER!");
-      document.location.reload();
-      clearInterval(interval); // Needed for Chrome to end game.
+      lives--;
+      if (!lives) {
+        alert("GAME OVER! " + "Final Score: " + score);
+        document.location.reload();
+      } else {
+        x = canvas.width / 2;
+        y = canvas.height - 30;
+        dx = 2;
+        dy = -2;
+        paddleX = (canvas.width - paddleWidth) / 2;
+      }
     }
   }
   // Change pressed numbers if you want paddle to move faster.
@@ -177,9 +202,12 @@ function draw() {
 
   x += dx;
   y += dy;
+
+  requestAnimationFrame(draw); // draw() calls itself over & over
+  //reqAniFrame significantly improves rendering framerate
 }
 
-let interval = setInterval(draw, 10);
+draw();
 
 /*
 ctx.beginPath();
