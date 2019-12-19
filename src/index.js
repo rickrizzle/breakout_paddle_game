@@ -27,6 +27,8 @@ let brickPadding = 10;
 let brickOffsetTop = 30;
 let brickOffsetLeft = 30;
 
+let score = 0;
+
 // Loop for going through rows & columns to create new bricks.
 let bricks = [];
 for (let c = 0; c < brickColumnCount; c++) {
@@ -69,10 +71,23 @@ function collisionDetection() {
         ) {
           dy = -dy;
           b.status = 0;
+          score++; // Increment the score
+          if (score == brickRowCount * brickColumnCount) {
+            alert("YOU WIN PLAYA, CONGRATULATIONS!" + " Final Score: " + score);
+
+            document.location.reload(); // Reloads game & starts game again
+            clearInterval(interval); // Needed for Chrome to end game
+          }
         }
       }
     }
   }
+}
+
+function drawScore() {
+  ctx.font = "16px Helvetica";
+  ctx.fillStyle = "#a9a9a9";
+  ctx.fillText("Score: " + score, 8, 20);
 }
 
 let color = randColor();
@@ -127,6 +142,7 @@ function draw() {
   drawBricks();
   drawBall();
   drawPaddle();
+  drawScore();
   collisionDetection();
   //Subtracting the radius from one edge's width & adding it onto the other
   //gives impression of proper collision detection.
